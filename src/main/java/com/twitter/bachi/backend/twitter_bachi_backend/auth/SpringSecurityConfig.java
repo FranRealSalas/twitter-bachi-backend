@@ -1,6 +1,5 @@
 package com.twitter.bachi.backend.twitter_bachi_backend.auth;
 
-import com.twitter.bachi.backend.twitter_bachi_backend.auth.filter.JWTAuthenticationFilter;
 import com.twitter.bachi.backend.twitter_bachi_backend.auth.filter.JWTValidationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -9,10 +8,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,9 +29,6 @@ public class SpringSecurityConfig {
 
     @Autowired
     private JWTValidationFilter jwtValidationFilter;
-
-    @Autowired
-    private JWTAuthenticationFilter jwtAuthenticationFilter;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -61,9 +57,8 @@ public class SpringSecurityConfig {
                 )
                 .authenticationManager(authenticationManager)
                 .cors(Customizer.withDefaults())
-                .addFilter(jwtAuthenticationFilter)
                 .addFilter(jwtValidationFilter)
-                .csrf(config -> config.disable())
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
     }

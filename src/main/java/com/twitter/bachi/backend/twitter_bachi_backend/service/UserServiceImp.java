@@ -23,7 +23,7 @@ public class UserServiceImp implements UserService {
 
     private PasswordEncoder passwordEncoder;
 
-    public UserServiceImp(UserRepository repository, PasswordEncoder passwordEncoder, RoleRepository roleRepository){
+    public UserServiceImp(UserRepository repository, PasswordEncoder passwordEncoder, RoleRepository roleRepository) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
@@ -56,8 +56,8 @@ public class UserServiceImp implements UserService {
     @Transactional
 
     public Optional<User> update(UserRequest user, Long id) {
-        Optional <User> userOptional = repository.findById(id);
-        if (userOptional.isPresent()){
+        Optional<User> userOptional = repository.findById(id);
+        if (userOptional.isPresent()) {
             User userDB = userOptional.get();
             userDB.setUsername(user.getUsername());
             userDB.setEmail(user.getEmail());
@@ -85,7 +85,7 @@ public class UserServiceImp implements UserService {
         Optional<Role> optionalRoleUser = roleRepository.findByName("User");
         optionalRoleUser.ifPresent(roles::add);
 
-        if (user.isAdmin()){
+        if (user.isAdmin()) {
             Optional<Role> optionalRoleAdmin = roleRepository.findByName("Admin");
             optionalRoleAdmin.ifPresent(roles::add);
         }

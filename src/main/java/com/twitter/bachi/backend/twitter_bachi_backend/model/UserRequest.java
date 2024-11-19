@@ -1,9 +1,6 @@
 package com.twitter.bachi.backend.twitter_bachi_backend.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.Transient;
-
-public class UserRequest implements IUser{
+public class UserRequest implements IUser {
 
     private String username;
 

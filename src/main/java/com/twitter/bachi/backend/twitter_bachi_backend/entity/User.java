@@ -4,8 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.twitter.bachi.backend.twitter_bachi_backend.model.IUser;
 import jakarta.persistence.*;
-import jakarta.persistence.GenerationType;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class User implements IUser {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private boolean admin;
 
-    @JsonIgnoreProperties({"handler","hibernateLazyInitializer"})
+    @JsonIgnoreProperties({"handler", "hibernateLazyInitializer"})
     @ManyToMany(fetch = FetchType.LAZY)
     private List<Role> roles;
 }

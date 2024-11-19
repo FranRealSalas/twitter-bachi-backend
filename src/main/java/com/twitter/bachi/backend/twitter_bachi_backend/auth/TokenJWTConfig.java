@@ -1,9 +1,5 @@
 package com.twitter.bachi.backend.twitter_bachi_backend.auth;
 
-import io.jsonwebtoken.Jwts;
-
-import javax.crypto.SecretKey;
-
 public class TokenJWTConfig {
 
     public static final String CONTENT_TYPE = "application/json";

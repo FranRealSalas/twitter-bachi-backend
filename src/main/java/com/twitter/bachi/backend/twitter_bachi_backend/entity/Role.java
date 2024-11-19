@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Entity
 @Data
-@Table(name="roles")
+@Table(name = "roles")
 
 public class Role {
 

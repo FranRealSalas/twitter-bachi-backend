@@ -28,14 +28,14 @@ public class TweetServiceImp implements TweetService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional <Tweet> findById(Long id) {
+    public Optional<Tweet> findById(Long id) {
         return repository.findById(id);
     }
 
     @Override
     @Transactional
     public Tweet save(Tweet tweet) {
-        tweet.setUser(userRepository.findByUsername( (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).orElseThrow());
+        tweet.setUser(userRepository.findByUsername((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).orElseThrow());
         return this.repository.save(tweet);
     }
 

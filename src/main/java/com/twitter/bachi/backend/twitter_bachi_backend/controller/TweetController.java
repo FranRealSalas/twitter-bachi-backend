@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-@CrossOrigin(origins = {"http://localhost:3000"})
 @RestController
 @RequestMapping("/api/tweets")
 public class TweetController {
@@ -20,28 +19,28 @@ public class TweetController {
     private TweetService tweetService;
 
     @GetMapping
-    public List<Tweet> listTweets(){
+    public List<Tweet> listTweets() {
         return tweetService.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> showTweet(@PathVariable Long id){
-        Optional <Tweet> tweetOptional = tweetService.findById(id);
-        if (tweetOptional.isPresent()){
+    public ResponseEntity<?> showTweet(@PathVariable Long id) {
+        Optional<Tweet> tweetOptional = tweetService.findById(id);
+        if (tweetOptional.isPresent()) {
             return ResponseEntity.status(HttpStatus.OK).body(tweetOptional.orElseThrow());
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("error", "No se encontro el tweet por el id" + id));
     }
 
     @PostMapping
-    public ResponseEntity<?> createTweet(@RequestBody Tweet tweet){
+    public ResponseEntity<?> createTweet(@RequestBody Tweet tweet) {
         return ResponseEntity.status(HttpStatus.CREATED).body(tweetService.save(tweet));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> editTweet(@RequestBody Tweet tweet, @PathVariable Long id){
+    public ResponseEntity<?> editTweet(@RequestBody Tweet tweet, @PathVariable Long id) {
         Optional<Tweet> tweetOptional = tweetService.findById(id);
-        if (tweetOptional.isPresent()){
+        if (tweetOptional.isPresent()) {
             Tweet tweetDB = tweetOptional.get();
             tweetDB.setContent(tweet.getContent());
 
@@ -51,9 +50,9 @@ public class TweetController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteTweet(@PathVariable Long id){
+    public ResponseEntity<?> deleteTweet(@PathVariable Long id) {
         Optional<Tweet> tweetOptional = tweetService.findById(id);
-        if (tweetOptional.isPresent()){
+        if (tweetOptional.isPresent()) {
             tweetService.deleteById(id);
             return ResponseEntity.noContent().build();
         }
