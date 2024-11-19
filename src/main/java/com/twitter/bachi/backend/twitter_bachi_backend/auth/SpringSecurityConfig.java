@@ -16,6 +16,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -45,19 +46,23 @@ public class SpringSecurityConfig {
 
         return http.authorizeHttpRequests(authz ->
                         authz.
-                                requestMatchers(HttpMethod.GET, "api/users")
+                                requestMatchers(HttpMethod.GET, "/api/users")
                                 .permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/users").hasRole("Admin")
                                 .requestMatchers(HttpMethod.PUT, "/api/users/{id}").hasRole("Admin")
                                 .requestMatchers(HttpMethod.DELETE, "/api/users/{id}").hasRole("Admin")
-                                .requestMatchers(HttpMethod.GET, "api/users/uploads/img/{photoName:.+}")
+                                .requestMatchers(HttpMethod.GET, "/api/users/uploads/img/{photoName:.+}")
+                                .permitAll()
+                                .requestMatchers("/api/auth/login")
+                                .permitAll()
+                                .requestMatchers("/error")
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated()
                 )
                 .authenticationManager(authenticationManager)
                 .cors(Customizer.withDefaults())
-                .addFilter(jwtValidationFilter)
+                .addFilterBefore(jwtValidationFilter, UsernamePasswordAuthenticationFilter.class)
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
