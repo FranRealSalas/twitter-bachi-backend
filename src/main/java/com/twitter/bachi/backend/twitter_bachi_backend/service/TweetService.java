@@ -1,16 +1,32 @@
 package com.twitter.bachi.backend.twitter_bachi_backend.service;
 
-import com.twitter.bachi.backend.twitter_bachi_backend.entity.Tweet;
+import com.twitter.bachi.backend.twitter_bachi_backend.dto.request.TweetCreationRequestDTO;
+import com.twitter.bachi.backend.twitter_bachi_backend.dto.request.TweetEditRequestDTO;
+import com.twitter.bachi.backend.twitter_bachi_backend.dto.response.TweetResponseDTO;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface TweetService {
-    List<Tweet> findAll();
+    List<TweetResponseDTO> findAll();
 
-    Optional<Tweet> findById(Long id);
+    Optional<TweetResponseDTO> findById(Long id);
 
-    Tweet save(Tweet tweet);
+    TweetResponseDTO save(TweetCreationRequestDTO tweet);
+
+    TweetResponseDTO edit(TweetEditRequestDTO tweet, Long id);
 
     void deleteById(Long id);
+
+    List<TweetResponseDTO> findCommentsByParentId(Long parentId);
+
+    void giveLike(Long id);
+
+    void removeLike(Long id);
+
+    void giveSave(Long id);
+
+    void removeSave(Long id);
+
+    List<TweetResponseDTO> getTweetsSavedByUsername(String username);
 }

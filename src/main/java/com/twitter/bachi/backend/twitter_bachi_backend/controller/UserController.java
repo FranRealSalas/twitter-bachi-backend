@@ -1,7 +1,8 @@
 package com.twitter.bachi.backend.twitter_bachi_backend.controller;
 
-import com.twitter.bachi.backend.twitter_bachi_backend.entity.User;
-import com.twitter.bachi.backend.twitter_bachi_backend.model.UserRequest;
+import com.twitter.bachi.backend.twitter_bachi_backend.dto.request.UserCreationRequestDTO;
+import com.twitter.bachi.backend.twitter_bachi_backend.dto.request.UserEditRequestDTO;
+import com.twitter.bachi.backend.twitter_bachi_backend.dto.response.UserResponseDTO;
 import com.twitter.bachi.backend.twitter_bachi_backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -13,9 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -26,35 +25,37 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getUser(@PathVariable Long id) {
-        Optional<User> userOptional = userService.findById(id);
+    @GetMapping
+    public List<UserResponseDTO> list(){
+        return userService.findAll();
+    }
+
+    @GetMapping("/{username}")
+    public ResponseEntity<?> getUserByUsername(@PathVariable String username) {
+        Optional<UserResponseDTO> userOptional = userService.findByUsername(username);
         if (userOptional.isPresent()) {
             return ResponseEntity.status(HttpStatus.OK).body(userOptional.orElseThrow());
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("error", "El Usuario no se encontro por el id" + id));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("error", "El Usuario no se encontro por el username" + username));
     }
 
     @PostMapping
-    public ResponseEntity<?> createUser(@RequestBody User user) {
+    public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserCreationRequestDTO user) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.save(user));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> EditUser(@RequestBody UserRequest user, @PathVariable Long id) {
-        Optional<User> userOptional = userService.update(user, id);
-        if (userOptional.isPresent()) {
-            return ResponseEntity.ok(userOptional.orElseThrow());
-        }
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<UserResponseDTO> EditUser(@RequestBody UserEditRequestDTO userEdited, @PathVariable Long id) {
+        UserResponseDTO user = userService.update(userEdited, id);
+            return ResponseEntity.ok(user);
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
-        Optional<User> userOptional = userService.findById(id);
+    public ResponseEntity<UserResponseDTO> deleteUser(@PathVariable Long id) {
+        Optional<UserResponseDTO> userOptional = userService.findById(id);
         if (userOptional.isPresent()) {
 
-            User user = userOptional.get();
+            UserResponseDTO user = userOptional.get();
             String previousPhoto = user.getProfilePhoto();
             if (previousPhoto != null && (!previousPhoto.isEmpty())) {
                 Path previousPhotoRoute = Paths.get("uploads").resolve(previousPhoto).toAbsolutePath();
@@ -70,53 +71,14 @@ public class UserController {
         return ResponseEntity.notFound().build();
     }
 
-    @PostMapping("/uploadImage")
-    public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file, @RequestParam("id") Long id) {
-        Map<String, Object> response = new HashMap<>();
-
-        Optional<User> optionalUser = userService.findById(id);
-
-        if (!optionalUser.isPresent()) {
-            response.put("message", "Usuario no encontrado");
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        }
-
-        User user = optionalUser.get();
-
-        if (!file.isEmpty()) {
-            String fileName = UUID.randomUUID().toString();
-            Path fileRoute = Paths.get("uploads").resolve(fileName).toAbsolutePath();
-
-            try {
-                Files.copy(file.getInputStream(), fileRoute);
-            } catch (IOException e) {
-                response.put("message", "Error al subir la imagen");
-                response.put("error", e.getMessage().concat(": ").concat(e.getCause().getMessage()));
-                return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-
-            String previousPhoto = user.getProfilePhoto();
-            if (previousPhoto != null && !previousPhoto.isEmpty()) {
-                Path previousPhotoRoute = Paths.get("uploads").resolve(previousPhoto).toAbsolutePath();
-                File previousPhotoFile = previousPhotoRoute.toFile();
-                if (previousPhotoFile.exists() && previousPhotoFile.canRead()) {
-                    previousPhotoFile.delete();
-                }
-            }
-
-            user.setProfilePhoto(fileName);
-            userService.save(user);
-
-            response.put("user", user);
-            response.put("message", "imagen subida correctamente");
-        }
-
-        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
+    @PostMapping("/uploadProfileImage")
+    public ResponseEntity<Map<String, Object>> uploadProfileImage(@RequestParam("file") MultipartFile file) {
+        return userService.updateProfileImage(file);
     }
 
-    @GetMapping("/uploads/img/{photoName:.+}")
-    public ResponseEntity<Resource> viewPhoto(@PathVariable String photoName) {
-        Path fileRoute = Paths.get("uploads").resolve(photoName).toAbsolutePath();
+    @GetMapping("/uploads/profile/img/{photoName:.+}")
+    public ResponseEntity<Resource> viewProfilePhoto(@PathVariable String photoName) {
+        Path fileRoute = Paths.get("uploads/profile").resolve(photoName).toAbsolutePath();
         Resource resource = null;
 
         try {
@@ -127,7 +89,28 @@ public class UserController {
 
         HttpHeaders header = new HttpHeaders();
         assert resource != null;
-        header.add(HttpHeaders.CONTENT_DISPOSITION, "Attachment; filename=\"" + resource.getFilename() + "\"");
+
+        return new ResponseEntity<Resource>(resource, header, HttpStatus.OK);
+    }
+
+    @PostMapping("/uploadCoverImage")
+    public ResponseEntity<?> uploadCoverImage(@RequestParam("file") MultipartFile file) {
+        return userService.uploadCoverImage(file);
+    }
+
+    @GetMapping("/uploads/cover/img/{photoName:.+}")
+    public ResponseEntity<Resource> viewCoverPhoto(@PathVariable String photoName) {
+        Path fileRoute = Paths.get("uploads/cover").resolve(photoName).toAbsolutePath();
+        Resource resource = null;
+
+        try {
+            resource = new UrlResource(fileRoute.toUri());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        HttpHeaders header = new HttpHeaders();
+        assert resource != null;
 
         return new ResponseEntity<Resource>(resource, header, HttpStatus.OK);
     }

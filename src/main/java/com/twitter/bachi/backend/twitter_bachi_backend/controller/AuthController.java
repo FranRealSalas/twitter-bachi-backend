@@ -1,7 +1,8 @@
 package com.twitter.bachi.backend.twitter_bachi_backend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.twitter.bachi.backend.twitter_bachi_backend.dto.LoginRequestDTO;
+import com.twitter.bachi.backend.twitter_bachi_backend.dto.request.LoginRequestDTO;
+import com.twitter.bachi.backend.twitter_bachi_backend.dto.response.UserResponseDTO;
 import com.twitter.bachi.backend.twitter_bachi_backend.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -20,10 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static com.twitter.bachi.backend.twitter_bachi_backend.auth.TokenJWTConfig.SECRET_KEY;
 
@@ -49,29 +47,37 @@ public class AuthController {
 
             boolean isAdmin = roles.stream().anyMatch(role -> role.getAuthority().equals("Admin"));
 
-            String profileImage = userService.findByUsername(username).get().getProfilePhoto();
+            Optional<UserResponseDTO> userData =  userService.findByUsername(username);
 
-            Claims claims = Jwts
-                    .claims()
-                    .add("authorities", new ObjectMapper().writeValueAsString(roles))
-                    .add("username", username)
-                    .add("isAdmin", isAdmin)
-                    .add("profileImage", profileImage)
-                    .build();
+            if (userData.isPresent()) {
+                String profileImage = userData.get().getProfilePhoto();
+                String coverImage = userData.get().getCoverPhoto();
 
-            String jwt = Jwts.builder()
-                    .subject(username)
-                    .claims(claims)
-                    .signWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8)))
-                    .issuedAt(new Date())
-                    .expiration(new Date(System.currentTimeMillis() + 3600000))
-                    .compact();
+                Claims claims = Jwts
+                        .claims()
+                        .add("authorities", new ObjectMapper().writeValueAsString(roles))
+                        .add("username", userData.get().getUsername())
+                        .add("profilePhoto", profileImage)
+                        .add("coverPhoto", coverImage)
+                        .build();
 
-            Map<String, String> body = new HashMap<>();
-            body.put("token", jwt);
-            body.put("username", username);
-            body.put("message", String.format("Iniciaste sesion con exito %s", username));
-            return new ResponseEntity<>(body, HttpStatus.OK);
+                String jwt = Jwts.builder()
+                        .subject(username)
+                        .claims(claims)
+                        .signWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8)))
+                        .issuedAt(new Date())
+                        .expiration(new Date(System.currentTimeMillis() + 3600000))
+                        .compact();
+
+                Map<String, String> body = new HashMap<>();
+                body.put("token", jwt);
+                body.put("username", username);
+                body.put("message", String.format("Iniciaste sesion con exito %s", username));
+                return new ResponseEntity<>(body, HttpStatus.OK);
+            }else{
+                throw new RuntimeException("User not found");
+            }
+
         } catch (Exception e) {
             Map<String, String> body = new HashMap<>();
             body.put("message", "Error en la autenticacion");

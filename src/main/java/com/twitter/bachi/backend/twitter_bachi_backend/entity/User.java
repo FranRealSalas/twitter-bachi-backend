@@ -21,6 +21,9 @@ public class User implements IUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String editableName;
+
+    @Column(unique = true)
     private String username;
 
     private String password;
@@ -28,6 +31,9 @@ public class User implements IUser {
     private String email;
 
     private String profilePhoto;
+
+    private String coverPhoto;
+
 
     @Transient
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

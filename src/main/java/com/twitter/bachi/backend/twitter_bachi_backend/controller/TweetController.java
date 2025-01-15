@@ -1,6 +1,8 @@
 package com.twitter.bachi.backend.twitter_bachi_backend.controller;
 
-import com.twitter.bachi.backend.twitter_bachi_backend.entity.Tweet;
+import com.twitter.bachi.backend.twitter_bachi_backend.dto.request.TweetCreationRequestDTO;
+import com.twitter.bachi.backend.twitter_bachi_backend.dto.request.TweetEditRequestDTO;
+import com.twitter.bachi.backend.twitter_bachi_backend.dto.response.TweetResponseDTO;
 import com.twitter.bachi.backend.twitter_bachi_backend.service.TweetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,13 +21,13 @@ public class TweetController {
     private TweetService tweetService;
 
     @GetMapping
-    public List<Tweet> listTweets() {
+    public List<TweetResponseDTO> listTweets() {
         return tweetService.findAll();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> showTweet(@PathVariable Long id) {
-        Optional<Tweet> tweetOptional = tweetService.findById(id);
+        Optional<TweetResponseDTO> tweetOptional = tweetService.findById(id);
         if (tweetOptional.isPresent()) {
             return ResponseEntity.status(HttpStatus.OK).body(tweetOptional.orElseThrow());
         }
@@ -33,29 +35,27 @@ public class TweetController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createTweet(@RequestBody Tweet tweet) {
+    public ResponseEntity<TweetResponseDTO> createTweet(@RequestBody TweetCreationRequestDTO tweet) {
         return ResponseEntity.status(HttpStatus.CREATED).body(tweetService.save(tweet));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> editTweet(@RequestBody Tweet tweet, @PathVariable Long id) {
-        Optional<Tweet> tweetOptional = tweetService.findById(id);
-        if (tweetOptional.isPresent()) {
-            Tweet tweetDB = tweetOptional.get();
-            tweetDB.setContent(tweet.getContent());
-
-            return ResponseEntity.ok(tweetService.save(tweetDB));
-        }
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<TweetResponseDTO> editTweet(@RequestBody TweetEditRequestDTO tweet, @PathVariable Long id) {
+        return ResponseEntity.status(HttpStatus.OK).body(tweetService.edit(tweet, id));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteTweet(@PathVariable Long id) {
-        Optional<Tweet> tweetOptional = tweetService.findById(id);
+        Optional<TweetResponseDTO> tweetOptional = tweetService.findById(id);
         if (tweetOptional.isPresent()) {
             tweetService.deleteById(id);
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/comments/{id}")
+    public ResponseEntity<List<TweetResponseDTO>> findCommentsByParentId(@PathVariable("id") Long parentId){
+        return ResponseEntity.ok(tweetService.findCommentsByParentId(parentId));
     }
 }

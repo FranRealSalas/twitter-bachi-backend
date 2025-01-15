@@ -1,21 +1,33 @@
 package com.twitter.bachi.backend.twitter_bachi_backend.service;
 
-import com.twitter.bachi.backend.twitter_bachi_backend.entity.User;
-import com.twitter.bachi.backend.twitter_bachi_backend.model.UserRequest;
+import com.twitter.bachi.backend.twitter_bachi_backend.dto.request.UserCreationRequestDTO;
+import com.twitter.bachi.backend.twitter_bachi_backend.dto.request.UserEditRequestDTO;
+import com.twitter.bachi.backend.twitter_bachi_backend.dto.response.UserResponseDTO;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface UserService {
-    List<User> findAll();
+    List<UserResponseDTO> findAll();
 
-    Optional<User> findById(Long id);
+    Optional<UserResponseDTO> findById(Long id);
 
-    User save(User user);
+    UserResponseDTO save(UserCreationRequestDTO user);
 
-    Optional<User> update(UserRequest user, Long id);
+    UserResponseDTO update(UserEditRequestDTO user, Long id);
 
     void deleteById(Long id);
 
-    Optional<User> findByUsername(String username);
+    Optional<UserResponseDTO> findByUsername(String username);
+
+    void giveFollow(String username);
+
+    void removeFollow(String username);
+
+    ResponseEntity<Map<String, Object>> updateProfileImage(MultipartFile file);
+
+    ResponseEntity<Map<String, Object>> uploadCoverImage(MultipartFile file);
 }
