@@ -123,7 +123,7 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public ResponseEntity<Map<String, Object>> updateProfileImage(MultipartFile file){
+    public ResponseEntity<Map<String, Object>> uploadProfileImage(MultipartFile file){
         Map<String, Object> response = new HashMap<>();
 
         Optional<User> optionalUser = repository.findByUsername((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());

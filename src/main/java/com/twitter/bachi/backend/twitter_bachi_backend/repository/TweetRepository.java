@@ -11,4 +11,6 @@ public interface TweetRepository extends JpaRepository<Tweet, Long> {
     List<Tweet> findAllByParentTweetIsNull();
 
     List<Tweet> findByParentTweet_Id(Long parentId);
+
+    List<Tweet> findByUser_username(String username);
 }

@@ -152,4 +152,9 @@ public class TweetServiceImp implements TweetService {
     public List<TweetResponseDTO> getTweetsSavedByUsername(String username) {
         return tweetSaveRepository.findByUser_username(username).stream().map(tweet -> tweetMapper.toDto(tweet.getTweet())).toList();
     }
+
+    @Override
+    public List<TweetResponseDTO> getTweetsByUsername(String username){
+        return repository.findByUser_username(username).stream().map(tweet -> tweetMapper.toDto(tweet)).toList();
+    }
 }

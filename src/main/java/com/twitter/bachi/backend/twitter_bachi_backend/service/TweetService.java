@@ -3,8 +3,11 @@ package com.twitter.bachi.backend.twitter_bachi_backend.service;
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.request.TweetCreationRequestDTO;
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.request.TweetEditRequestDTO;
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.response.TweetResponseDTO;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface TweetService {
@@ -29,4 +32,6 @@ public interface TweetService {
     void removeSave(Long id);
 
     List<TweetResponseDTO> getTweetsSavedByUsername(String username);
+
+    List<TweetResponseDTO> getTweetsByUsername(String username);
 }

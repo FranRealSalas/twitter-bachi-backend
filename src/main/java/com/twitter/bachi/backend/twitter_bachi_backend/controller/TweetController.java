@@ -25,6 +25,11 @@ public class TweetController {
         return tweetService.findAll();
     }
 
+    @GetMapping("/by-username/{username}")
+    public List<TweetResponseDTO> listTweetsByUsername(@PathVariable String username){
+        return tweetService.getTweetsByUsername(username);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> showTweet(@PathVariable Long id) {
         Optional<TweetResponseDTO> tweetOptional = tweetService.findById(id);

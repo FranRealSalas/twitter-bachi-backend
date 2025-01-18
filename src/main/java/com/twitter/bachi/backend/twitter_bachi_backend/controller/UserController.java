@@ -73,7 +73,7 @@ public class UserController {
 
     @PostMapping("/uploadProfileImage")
     public ResponseEntity<Map<String, Object>> uploadProfileImage(@RequestParam("file") MultipartFile file) {
-        return userService.updateProfileImage(file);
+        return userService.uploadProfileImage(file);
     }
 
     @GetMapping("/uploads/profile/img/{photoName:.+}")

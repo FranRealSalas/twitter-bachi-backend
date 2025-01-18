@@ -27,7 +27,7 @@ public interface UserService {
 
     void removeFollow(String username);
 
-    ResponseEntity<Map<String, Object>> updateProfileImage(MultipartFile file);
+    ResponseEntity<Map<String, Object>> uploadProfileImage(MultipartFile file);
 
     ResponseEntity<Map<String, Object>> uploadCoverImage(MultipartFile file);
 }
