@@ -40,6 +40,9 @@ public abstract class TweetMapper {
 
     @Mapping(target = "liked", expression = "java(isLiked(tweet))")
     @Mapping(target = "saved", expression = "java(isSaved(tweet))")
+    @Mapping(target = "likeCount", expression = "java(likeCountByTweet(tweet))")
+    @Mapping(target = "saveCount", expression = "java(saveCountByTweet(tweet))")
+    @Mapping(target = "countComments", expression = "java(countCommentsByParentId(tweet))")
     public abstract TweetResponseDTO toDto(Tweet tweet);
 
     public boolean isLiked(Tweet tweet){
@@ -58,5 +61,17 @@ public abstract class TweetMapper {
             return tweetSaveRepository.existsByUserAndTweet(user, tweet);
         }
         return  false;
+    }
+
+    public long likeCountByTweet(Tweet tweet){
+        return tweetLikeRepository.countByTweet(tweet);
+    }
+
+    public long saveCountByTweet(Tweet tweet){
+        return tweetSaveRepository.countByTweet(tweet);
+    }
+
+    public int countCommentsByParentId(Tweet tweet){
+        return tweetRepository.countByParentTweet_Id(tweet.getId());
     }
 }

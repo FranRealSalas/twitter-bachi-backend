@@ -6,6 +6,7 @@ import com.twitter.bachi.backend.twitter_bachi_backend.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -15,4 +16,6 @@ public interface TweetLikeRepository extends JpaRepository<TweetLike, Long> {
     boolean existsByUserAndTweet(User user, Tweet tweet);
 
     long countByTweet(Tweet tweet);
+
+    List<TweetLike> findByUser_username(String username);
 }

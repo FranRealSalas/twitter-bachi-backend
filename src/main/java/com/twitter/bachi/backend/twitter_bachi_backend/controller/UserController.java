@@ -3,6 +3,7 @@ package com.twitter.bachi.backend.twitter_bachi_backend.controller;
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.request.UserCreationRequestDTO;
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.request.UserEditRequestDTO;
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.response.UserResponseDTO;
+import com.twitter.bachi.backend.twitter_bachi_backend.entity.UserFollow;
 import com.twitter.bachi.backend.twitter_bachi_backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -39,14 +40,16 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("error", "El Usuario no se encontro por el username" + username));
     }
 
+     @GetMapping("/")
+
     @PostMapping
     public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserCreationRequestDTO user) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.save(user));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<UserResponseDTO> EditUser(@RequestBody UserEditRequestDTO userEdited, @PathVariable Long id) {
-        UserResponseDTO user = userService.update(userEdited, id);
+    @PutMapping("/edit/{username}")
+    public ResponseEntity<UserResponseDTO> EditUser(@RequestBody UserEditRequestDTO userEdited, @PathVariable String username) {
+        UserResponseDTO user = userService.update(userEdited, username);
             return ResponseEntity.ok(user);
     }
 
@@ -113,5 +116,20 @@ public class UserController {
         assert resource != null;
 
         return new ResponseEntity<Resource>(resource, header, HttpStatus.OK);
+    }
+
+    @GetMapping("/followers/{username}")
+    public List<UserFollow> getFollowersByUsername(@PathVariable String username){
+        return userService.findFollowersByUsername(username);
+    }
+
+    @GetMapping("/following/{username}")
+    public List<UserFollow> getFollowedsByUsername(@PathVariable String username){
+        return userService.findFollowedsByFollower(username);
+    }
+
+    @GetMapping("/logged-user")
+    public UserResponseDTO getLoggedUser(){
+        return userService.getLoggedUser();
     }
 }

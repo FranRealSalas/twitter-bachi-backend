@@ -5,10 +5,18 @@ import com.twitter.bachi.backend.twitter_bachi_backend.dto.request.TweetEditRequ
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.response.TweetResponseDTO;
 import com.twitter.bachi.backend.twitter_bachi_backend.service.TweetService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -40,8 +48,8 @@ public class TweetController {
     }
 
     @PostMapping
-    public ResponseEntity<TweetResponseDTO> createTweet(@RequestBody TweetCreationRequestDTO tweet) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(tweetService.save(tweet));
+    public ResponseEntity<TweetResponseDTO> createTweet(@RequestPart("content") TweetCreationRequestDTO tweet, @RequestPart(required = false) MultipartFile[] images) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(tweetService.save(tweet, images));
     }
 
     @PutMapping("/{id}")
@@ -53,8 +61,10 @@ public class TweetController {
     public ResponseEntity<?> deleteTweet(@PathVariable Long id) {
         Optional<TweetResponseDTO> tweetOptional = tweetService.findById(id);
         if (tweetOptional.isPresent()) {
-            tweetService.deleteById(id);
-            return ResponseEntity.noContent().build();
+            if(tweetOptional.get().getUser().getUsername().equals((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal())) {
+                tweetService.deleteById(id);
+                return ResponseEntity.noContent().build();
+            }
         }
         return ResponseEntity.notFound().build();
     }
@@ -62,5 +72,37 @@ public class TweetController {
     @GetMapping("/comments/{id}")
     public ResponseEntity<List<TweetResponseDTO>> findCommentsByParentId(@PathVariable("id") Long parentId){
         return ResponseEntity.ok(tweetService.findCommentsByParentId(parentId));
+    }
+
+    @GetMapping("comments/by-username/{username}")
+    public List<TweetResponseDTO> listCommentsByUsername(@PathVariable String username){
+        return tweetService.getCommentsByUsername(username);
+    }
+
+    @GetMapping("/with-image/{username}")
+    public List<TweetResponseDTO> listTweetsWithImagesByUsername(@PathVariable String username){
+        return tweetService.getTweetsWithImagesByUsername(username);
+    }
+
+    @GetMapping("/uploads/tweetImages/{photoName}")
+    public ResponseEntity<Resource> showTweetPhotos(@PathVariable String photoName) {
+        Path fileRoute = Paths.get("uploads/tweetImages").resolve(photoName).toAbsolutePath();
+        Resource resource = null;
+
+        try {
+            resource = new UrlResource(fileRoute.toUri());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        HttpHeaders header = new HttpHeaders();
+        assert resource != null;
+
+        return new ResponseEntity<Resource>(resource, header, HttpStatus.OK);
+    }
+
+    @GetMapping("/by-followed")
+    public List<TweetResponseDTO> getTweetsByFolloweds(){
+        return tweetService.getTweetsByFolloweds();
     }
 }

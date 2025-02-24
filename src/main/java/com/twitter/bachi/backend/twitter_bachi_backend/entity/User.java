@@ -14,7 +14,6 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Data
-
 public class User implements IUser {
 
     @Id
@@ -33,7 +32,6 @@ public class User implements IUser {
     private String profilePhoto;
 
     private String coverPhoto;
-
 
     @Transient
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

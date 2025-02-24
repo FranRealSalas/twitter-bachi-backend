@@ -6,5 +6,4 @@ import lombok.Data;
 public class TweetEditRequestDTO {
 
     private String content;
-
 }

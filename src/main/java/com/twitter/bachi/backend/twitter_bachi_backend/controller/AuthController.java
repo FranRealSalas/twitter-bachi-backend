@@ -52,6 +52,7 @@ public class AuthController {
             if (userData.isPresent()) {
                 String profileImage = userData.get().getProfilePhoto();
                 String coverImage = userData.get().getCoverPhoto();
+                String editableName = userData.get().getEditableName();
 
                 Claims claims = Jwts
                         .claims()
@@ -59,6 +60,7 @@ public class AuthController {
                         .add("username", userData.get().getUsername())
                         .add("profilePhoto", profileImage)
                         .add("coverPhoto", coverImage)
+                        .add("editableName", editableName)
                         .build();
 
                 String jwt = Jwts.builder()

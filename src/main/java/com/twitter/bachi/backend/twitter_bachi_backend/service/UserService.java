@@ -3,6 +3,7 @@ package com.twitter.bachi.backend.twitter_bachi_backend.service;
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.request.UserCreationRequestDTO;
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.request.UserEditRequestDTO;
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.response.UserResponseDTO;
+import com.twitter.bachi.backend.twitter_bachi_backend.entity.UserFollow;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,7 +18,7 @@ public interface UserService {
 
     UserResponseDTO save(UserCreationRequestDTO user);
 
-    UserResponseDTO update(UserEditRequestDTO user, Long id);
+    UserResponseDTO update(UserEditRequestDTO user, String username);
 
     void deleteById(Long id);
 
@@ -30,4 +31,11 @@ public interface UserService {
     ResponseEntity<Map<String, Object>> uploadProfileImage(MultipartFile file);
 
     ResponseEntity<Map<String, Object>> uploadCoverImage(MultipartFile file);
+
+
+    List<UserFollow> findFollowedsByFollower(String username);
+
+    List<UserFollow> findFollowersByUsername(String username);
+
+    UserResponseDTO getLoggedUser();
 }

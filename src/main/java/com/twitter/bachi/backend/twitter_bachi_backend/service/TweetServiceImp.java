@@ -4,18 +4,21 @@ import com.twitter.bachi.backend.twitter_bachi_backend.dto.mapper.TweetMapper;
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.request.TweetCreationRequestDTO;
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.request.TweetEditRequestDTO;
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.response.TweetResponseDTO;
-import com.twitter.bachi.backend.twitter_bachi_backend.entity.TweetLike;
-import com.twitter.bachi.backend.twitter_bachi_backend.entity.Tweet;
-import com.twitter.bachi.backend.twitter_bachi_backend.entity.TweetSave;
-import com.twitter.bachi.backend.twitter_bachi_backend.entity.User;
+import com.twitter.bachi.backend.twitter_bachi_backend.entity.*;
 import com.twitter.bachi.backend.twitter_bachi_backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-import java.util.Optional;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.*;
 
 @Service
 public class TweetServiceImp implements TweetService {
@@ -38,6 +41,18 @@ public class TweetServiceImp implements TweetService {
     @Autowired
     private UserFollowRepository userFollowRepository;
 
+    @Autowired
+    private ImageService imageService;
+
+    @Autowired
+    private TweetImageRepository tweetImageRepository;
+
+    @Autowired
+    private NotificationRepository notificationRepository;
+
+    @Autowired
+    private UserNotificationRepository userNotificationRepository;
+
     @Override
     @Transactional(readOnly = true)
     public List<TweetResponseDTO> findAll() {
@@ -50,11 +65,35 @@ public class TweetServiceImp implements TweetService {
         return repository.findById(id).map(tweet -> tweetMapper.toDto(tweet));
     }
 
-    @Override
     @Transactional
-    public TweetResponseDTO save(TweetCreationRequestDTO tweetDTO) {
+    @Override
+    public TweetResponseDTO save(TweetCreationRequestDTO tweetDTO, MultipartFile[] images) {
         Tweet tweet = tweetMapper.toEntity(tweetDTO);
+        List<Image> imagesList = new ArrayList<>();
+
+        if (images != null){
+            for (MultipartFile image : images) {
+                if (!image.isEmpty()) {
+                    String fileName = UUID.randomUUID().toString() + image.getName();
+                    File f = new File("uploads/tweetImages").getAbsoluteFile();
+                    f.mkdirs();
+                    Path fileRoute = Paths.get("uploads/tweetImages").resolve(fileName).toAbsolutePath();
+
+                    try {
+                        Files.copy(image.getInputStream(), fileRoute, StandardCopyOption.REPLACE_EXISTING);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    Image image1 = new Image();
+                    image1.setImageName(fileName);
+                    imageService.save(image1);
+                    imagesList.add(image1);
+                }
+            }
+        }
         tweet.setUser(userRepository.findByUsername((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).orElseThrow());
+        tweet.setImages(imagesList);
 
         return tweetMapper.toDto(this.repository.save(tweet));
     }
@@ -66,8 +105,9 @@ public class TweetServiceImp implements TweetService {
             Tweet tweetDB = tweetOptional.get();
             tweetMapper.toEntity(tweet, tweetDB);
 
-            return tweetMapper.toDto(repository.save(tweetDB));
-        }
+            if(tweetDB.getUser().getUsername().equals((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal())){
+                return tweetMapper.toDto(repository.save(tweetDB));}
+            }
         throw new RuntimeException("Tweet not found");
     }
 
@@ -78,8 +118,13 @@ public class TweetServiceImp implements TweetService {
     }
 
     @Override
-    public List<TweetResponseDTO> findCommentsByParentId(Long parentId){
+    public List<TweetResponseDTO> findCommentsByParentId(Long parentId) {
         return repository.findByParentTweet_Id(parentId).stream().map(tweet -> tweetMapper.toDto(tweet)).toList();
+    }
+
+    @Override
+    public int countCommentsByParentId(Long parentId) {
+        return repository.countByParentTweet_Id(parentId);
     }
 
     @Override
@@ -96,6 +141,21 @@ public class TweetServiceImp implements TweetService {
             Optional<TweetLike> optionalTweetLike = tweetLikeRepository.findByUserAndTweet(user, tweetDB);
             if (optionalTweetLike.isEmpty()) {
                 tweetLikeRepository.save(tweetLike);
+
+                Notification notification = new Notification();
+                notification.setIcon("like_icon");
+                notification.setIconType("image/png");
+                notification.setHref("/tweets/" + tweetDB.getId());
+                notification.setProfileImage(user.getProfilePhoto());
+                notification.setDescription(user.getUsername() + " indicó que le gusta tu post");
+                notification.setDate(new Date());
+                notificationRepository.save(notification);
+
+                UserNotification userNotification = new UserNotification();
+                userNotification.setUser(tweetDB.getUser());
+                userNotification.setNotification(notification);
+                userNotification.setReaded(false);
+                userNotificationRepository.save(userNotification);
             }
         }
     }
@@ -154,7 +214,29 @@ public class TweetServiceImp implements TweetService {
     }
 
     @Override
-    public List<TweetResponseDTO> getTweetsByUsername(String username){
+    public List<TweetResponseDTO> getTweetsLikedByUsername(String username) {
+        return tweetLikeRepository.findByUser_username(username).stream().map(tweet -> tweetMapper.toDto(tweet.getTweet())).toList();
+    }
+
+    @Override
+    public List<TweetResponseDTO> getTweetsByUsername(String username) {
         return repository.findByUser_username(username).stream().map(tweet -> tweetMapper.toDto(tweet)).toList();
+    }
+
+    @Override
+    public List<TweetResponseDTO> getCommentsByUsername(String username) {
+        return repository.findByUser_usernameAndParentTweetNotNull(username).stream().map(tweet -> tweetMapper.toDto(tweet)).toList();
+    }
+
+    @Override
+    public List<TweetResponseDTO> getTweetsWithImagesByUsername(String username) {
+        return repository.findByUser_usernameAndImagesNotNull(username).stream().map(tweet -> tweetMapper.toDto(tweet)).toList();
+    }
+
+    @Override
+    public List<TweetResponseDTO> getTweetsByFolloweds(){
+        List<UserFollow> followeds = userFollowRepository.findByFollower_username((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+
+        return repository.findByFolloweds(followeds.stream().map(UserFollow::getFollowed).toList()).stream().map(tweet -> tweetMapper.toDto(tweet)).toList();
     }
 }

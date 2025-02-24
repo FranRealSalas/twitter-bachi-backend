@@ -5,7 +5,9 @@ import com.twitter.bachi.backend.twitter_bachi_backend.dto.request.UserCreationR
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.request.UserEditRequestDTO;
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.response.UserResponseDTO;
 import com.twitter.bachi.backend.twitter_bachi_backend.entity.*;
+import com.twitter.bachi.backend.twitter_bachi_backend.repository.NotificationRepository;
 import com.twitter.bachi.backend.twitter_bachi_backend.repository.UserFollowRepository;
+import com.twitter.bachi.backend.twitter_bachi_backend.repository.UserNotificationRepository;
 import com.twitter.bachi.backend.twitter_bachi_backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -40,6 +42,12 @@ public class UserServiceImp implements UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private NotificationRepository notificationRepository;
+
+    @Autowired
+    private UserNotificationRepository userNotificationRepository;
+
     @Override
     @Transactional(readOnly = true)
     public List<UserResponseDTO> findAll() {
@@ -62,8 +70,8 @@ public class UserServiceImp implements UserService {
 
     @Override
     @Transactional
-    public UserResponseDTO update(UserEditRequestDTO user, Long id) {
-        Optional<User> userOptional = repository.findById(id);
+    public UserResponseDTO update(UserEditRequestDTO user, String username) {
+        Optional<User> userOptional = repository.findByUsername(username);
         if (userOptional.isPresent()) {
             User userDB = userOptional.get();
             userMapper.toEntity(user, userDB);
@@ -103,6 +111,21 @@ public class UserServiceImp implements UserService {
 
              if (optionalUserFollow.isEmpty()){
                 userFollowRepository.save(userFollow);
+
+                 Notification notification = new Notification();
+                 notification.setIcon("follow_icon");
+                 notification.setIconType("image/png");
+                 notification.setHref("/users/" + userFollow.getFollower().getUsername());
+                 notification.setProfileImage(userFollow.getFollower().getProfilePhoto());
+                 notification.setDescription(userFollow.getFollower().getUsername() + " te siguió");
+                 notification.setDate(new Date());
+                 notificationRepository.save(notification);
+
+                 UserNotification userNotification = new UserNotification();
+                 userNotification.setUser(userDB);
+                 userNotification.setNotification(notification);
+                 userNotification.setReaded(false);
+                 userNotificationRepository.save(userNotification);
              }
         }
     }
@@ -196,5 +219,20 @@ public class UserServiceImp implements UserService {
         }
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
+    }
+
+    @Override
+    public List<UserFollow> findFollowedsByFollower(String username) {
+        return userFollowRepository.findByFollower_username(username);
+    }
+
+    @Override
+    public List<UserFollow> findFollowersByUsername(String username) {
+        return userFollowRepository.findByFollowed_username(username);
+    }
+
+    @Override
+    public UserResponseDTO getLoggedUser(){
+        return userMapper.toDto(repository.findByUsername((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).orElseThrow());
     }
 }
