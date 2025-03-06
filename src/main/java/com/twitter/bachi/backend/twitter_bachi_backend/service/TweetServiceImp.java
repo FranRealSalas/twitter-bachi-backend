@@ -119,8 +119,8 @@ public class TweetServiceImp implements TweetService {
     }
 
     @Override
-    public List<TweetResponseDTO> findCommentsByParentId(Long parentId) {
-        return repository.findByParentTweet_Id(parentId).stream().map(tweet -> tweetMapper.toDto(tweet)).toList();
+    public List<TweetResponseDTO> findCommentsByParentId(Long parentId, Long id) {
+        return repository.findByParentTweet_Id(parentId, 10, id).stream().map(tweet -> tweetMapper.toDto(tweet)).toList();
     }
 
     @Override
@@ -212,8 +212,8 @@ public class TweetServiceImp implements TweetService {
     }
 
     @Override
-    public List<TweetResponseDTO> getTweetsSavedByUsername(String username) {
-        return tweetSaveRepository.findByUser_username(username).stream().map(tweet -> tweetMapper.toDto(tweet.getTweet())).toList();
+    public List<TweetResponseDTO> getTweetsSavedByUsername(String username, Long id) {
+        return tweetSaveRepository.findByUser_username(username, 10, id).stream().map(tweet -> tweetMapper.toDto(tweet.getTweet())).toList();
     }
 
     @Override

@@ -16,8 +16,8 @@ public class SaveController {
     private TweetService service;
 
     @GetMapping("/{username}")
-    public List<TweetResponseDTO> getTweetsByUser(@PathVariable String username) {
-        return service.getTweetsSavedByUsername(username);
+    public List<TweetResponseDTO> getTweetsByUser(@PathVariable String username, @RequestParam(required = false) Long id) {
+        return service.getTweetsSavedByUsername(username,id);
     }
 
     @PostMapping("/give")

@@ -23,7 +23,7 @@ public interface TweetService {
 
     void deleteById(Long id);
 
-    List<TweetResponseDTO> findCommentsByParentId(Long parentId);
+    List<TweetResponseDTO> findCommentsByParentId(Long parentId, Long id);
 
     int countCommentsByParentId(Long parentId);
 
@@ -35,7 +35,7 @@ public interface TweetService {
 
     void removeSave(Long id);
 
-    List<TweetResponseDTO> getTweetsSavedByUsername(String username);
+    List<TweetResponseDTO> getTweetsSavedByUsername(String username, Long id);
 
     List<TweetResponseDTO> getTweetsLikedByUsername(String username, Long id);
 

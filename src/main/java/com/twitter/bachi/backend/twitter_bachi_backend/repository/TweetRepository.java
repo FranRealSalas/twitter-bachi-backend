@@ -14,7 +14,8 @@ public interface TweetRepository extends JpaRepository<Tweet, Long> {
     @Query("SELECT t FROM Tweet t WHERE t.parentTweet IS NULL AND (:id IS NULL OR t.id < :id) ORDER BY t.id DESC LIMIT :limit")
     List<Tweet> findAllByParentTweetIsNullOrderByIdDesc(Long id, Integer limit);
 
-    List<Tweet> findByParentTweet_Id(Long parentId);
+    @Query(value = "SELECT t FROM Tweet t WHERE t.parentTweet.id = :parentId AND (:id IS NULL OR t.id < :id) ORDER BY t.id DESC LIMIT :limit")
+    List<Tweet> findByParentTweet_Id(Long parentId, Integer limit, Long id);
 
     @Query(value = "SELECT t FROM Tweet t WHERE t.parentTweet IS NULL AND t.user.username = :username AND (:id IS NULL OR t.id < :id) ORDER BY t.id DESC LIMIT :limit")
     List<Tweet> findByUser_usernameOrderByIdDesc(String username, Integer limit, Long id);

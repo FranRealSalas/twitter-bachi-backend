@@ -70,8 +70,8 @@ public class TweetController {
     }
 
     @GetMapping("/comments/{id}")
-    public ResponseEntity<List<TweetResponseDTO>> findCommentsByParentId(@PathVariable("id") Long parentId) {
-        return ResponseEntity.ok(tweetService.findCommentsByParentId(parentId));
+    public ResponseEntity<List<TweetResponseDTO>> findCommentsByParentId(@PathVariable("id") Long parentId, @RequestParam(required = false) Long id) {
+        return ResponseEntity.ok(tweetService.findCommentsByParentId(parentId, id));
     }
 
     @GetMapping("comments/by-username/{username}")
