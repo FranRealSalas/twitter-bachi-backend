@@ -4,6 +4,7 @@ import com.twitter.bachi.backend.twitter_bachi_backend.dto.request.UserCreationR
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.request.UserEditRequestDTO;
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.response.UserResponseDTO;
 import com.twitter.bachi.backend.twitter_bachi_backend.entity.User;
+import com.twitter.bachi.backend.twitter_bachi_backend.repository.TweetRepository;
 import com.twitter.bachi.backend.twitter_bachi_backend.repository.UserFollowRepository;
 import com.twitter.bachi.backend.twitter_bachi_backend.repository.UserRepository;
 import org.mapstruct.Mapper;
@@ -20,6 +21,9 @@ public abstract class UserMapper {
     protected UserRepository userRepository;
 
     @Autowired
+    protected TweetRepository tweetRepository;
+
+    @Autowired
     protected UserFollowRepository userFollowRepository;
 
     public abstract User toEntity(UserCreationRequestDTO userDTO);
@@ -29,9 +33,10 @@ public abstract class UserMapper {
     @Mapping(target = "follow", expression = "java(isFollow(user))")
     @Mapping(target = "followedCount", expression = "java(followedCountByUser(user))")
     @Mapping(target = "followerCount", expression = "java(followerCountByUser(user))")
+    @Mapping(target = "countTweets", expression = "java(countTweetsByUsername(user))")
     public abstract UserResponseDTO toDto(User user);
 
-    public boolean isFollow(User followed){
+    public boolean isFollow(User followed) {
         if (SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
             return false;
         }
@@ -40,11 +45,15 @@ public abstract class UserMapper {
         return userFollowRepository.existsByFollowerAndFollowed(follower, followed);
     }
 
-    public long followedCountByUser(User user){
+    public long followedCountByUser(User user) {
         return userFollowRepository.countByFollowed(user);
     }
 
-    public long followerCountByUser(User user){
+    public long followerCountByUser(User user) {
         return userFollowRepository.countByFollower(user);
+    }
+
+    public long countTweetsByUsername(User user) {
+        return tweetRepository.countByUser(user);
     }
 }

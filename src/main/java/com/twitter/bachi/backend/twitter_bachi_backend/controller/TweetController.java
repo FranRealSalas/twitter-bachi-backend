@@ -29,13 +29,13 @@ public class TweetController {
     private TweetService tweetService;
 
     @GetMapping
-    public List<TweetResponseDTO> listTweets() {
-        return tweetService.findAll();
+    public List<TweetResponseDTO> listTweets(@RequestParam(required = false) Long id) {
+        return tweetService.findAll(id);
     }
 
     @GetMapping("/by-username/{username}")
-    public List<TweetResponseDTO> listTweetsByUsername(@PathVariable String username){
-        return tweetService.getTweetsByUsername(username);
+    public List<TweetResponseDTO> listTweetsByUsername(@PathVariable String username, @RequestParam(required = false) Long id) {
+        return tweetService.getTweetsByUsername(username, id);
     }
 
     @GetMapping("/{id}")
@@ -61,7 +61,7 @@ public class TweetController {
     public ResponseEntity<?> deleteTweet(@PathVariable Long id) {
         Optional<TweetResponseDTO> tweetOptional = tweetService.findById(id);
         if (tweetOptional.isPresent()) {
-            if(tweetOptional.get().getUser().getUsername().equals((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal())) {
+            if (tweetOptional.get().getUser().getUsername().equals((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal())) {
                 tweetService.deleteById(id);
                 return ResponseEntity.noContent().build();
             }
@@ -70,18 +70,18 @@ public class TweetController {
     }
 
     @GetMapping("/comments/{id}")
-    public ResponseEntity<List<TweetResponseDTO>> findCommentsByParentId(@PathVariable("id") Long parentId){
+    public ResponseEntity<List<TweetResponseDTO>> findCommentsByParentId(@PathVariable("id") Long parentId) {
         return ResponseEntity.ok(tweetService.findCommentsByParentId(parentId));
     }
 
     @GetMapping("comments/by-username/{username}")
-    public List<TweetResponseDTO> listCommentsByUsername(@PathVariable String username){
-        return tweetService.getCommentsByUsername(username);
+    public List<TweetResponseDTO> listCommentsByUsername(@PathVariable String username, @RequestParam(required = false) Long id) {
+        return tweetService.getCommentsByUsername(username, id);
     }
 
     @GetMapping("/with-image/{username}")
-    public List<TweetResponseDTO> listTweetsWithImagesByUsername(@PathVariable String username){
-        return tweetService.getTweetsWithImagesByUsername(username);
+    public List<TweetResponseDTO> listTweetsWithImagesByUsername(@PathVariable String username, @RequestParam(required = false) Long id) {
+        return tweetService.getTweetsWithImagesByUsername(username, id);
     }
 
     @GetMapping("/uploads/tweetImages/{photoName}")
@@ -102,7 +102,7 @@ public class TweetController {
     }
 
     @GetMapping("/by-followed")
-    public List<TweetResponseDTO> getTweetsByFolloweds(){
+    public List<TweetResponseDTO> getTweetsByFolloweds() {
         return tweetService.getTweetsByFolloweds();
     }
 }

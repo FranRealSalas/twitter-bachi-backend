@@ -15,6 +15,8 @@ public class UserResponseDTO {
 
     private String username;
 
+    private Long countTweets;
+
     private String email;
 
     private String profilePhoto;

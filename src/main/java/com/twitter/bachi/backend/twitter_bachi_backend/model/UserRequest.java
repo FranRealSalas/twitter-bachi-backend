@@ -1,6 +1,6 @@
 package com.twitter.bachi.backend.twitter_bachi_backend.model;
 
-public class UserRequest implements IUser{
+public class UserRequest implements IUser {
 
     private String username;
 

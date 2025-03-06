@@ -10,7 +10,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TweetService {
-    List<TweetResponseDTO> findAll();
+
+    @Transactional(readOnly = true)
+    List<TweetResponseDTO> findAll(Long id);
 
     Optional<TweetResponseDTO> findById(Long id);
 
@@ -35,13 +37,13 @@ public interface TweetService {
 
     List<TweetResponseDTO> getTweetsSavedByUsername(String username);
 
-    List<TweetResponseDTO> getTweetsLikedByUsername(String username);
+    List<TweetResponseDTO> getTweetsLikedByUsername(String username, Long id);
 
-    List<TweetResponseDTO> getTweetsByUsername(String username);
+    List<TweetResponseDTO> getTweetsByUsername(String username, Long id);
 
-    List<TweetResponseDTO> getCommentsByUsername(String username);
+    List<TweetResponseDTO> getCommentsByUsername(String username, Long id);
 
-    List<TweetResponseDTO> getTweetsWithImagesByUsername(String username);
+    List<TweetResponseDTO> getTweetsWithImagesByUsername(String username, Long id);
 
     List<TweetResponseDTO> getTweetsByFolloweds();
 }

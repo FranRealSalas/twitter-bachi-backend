@@ -18,7 +18,7 @@ public class NotificationController {
     UserNotificationService userNotificationService;
 
     @GetMapping("/{username}")
-    public List<UserNotification> notificationsByUsername(@PathVariable String username){
+    public List<UserNotification> notificationsByUsername(@PathVariable String username) {
         return userNotificationService.findByUser_username(username);
     }
 }

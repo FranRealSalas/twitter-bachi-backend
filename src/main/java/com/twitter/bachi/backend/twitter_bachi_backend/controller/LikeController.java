@@ -16,8 +16,8 @@ public class LikeController {
     private TweetService service;
 
     @GetMapping("/{username}")
-    public List<TweetResponseDTO> getTweetsByUser(@PathVariable String username) {
-        return service.getTweetsLikedByUsername(username);
+    public List<TweetResponseDTO> getTweetsByUser(@PathVariable String username, @RequestParam(required = false) Long id) {
+        return service.getTweetsLikedByUsername(username, id);
     }
 
     @PostMapping("/give")

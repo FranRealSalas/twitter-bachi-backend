@@ -53,10 +53,10 @@ public class TweetServiceImp implements TweetService {
     @Autowired
     private UserNotificationRepository userNotificationRepository;
 
-    @Override
     @Transactional(readOnly = true)
-    public List<TweetResponseDTO> findAll() {
-        return this.repository.findAllByParentTweetIsNull().stream().map(tweet -> tweetMapper.toDto(tweet)).toList();
+    @Override
+    public List<TweetResponseDTO> findAll(Long id) {
+        return this.repository.findAllByParentTweetIsNullOrderByIdDesc(id, 10).stream().map(tweet -> tweetMapper.toDto(tweet)).toList();
     }
 
     @Override
@@ -71,7 +71,7 @@ public class TweetServiceImp implements TweetService {
         Tweet tweet = tweetMapper.toEntity(tweetDTO);
         List<Image> imagesList = new ArrayList<>();
 
-        if (images != null){
+        if (images != null) {
             for (MultipartFile image : images) {
                 if (!image.isEmpty()) {
                     String fileName = UUID.randomUUID().toString() + image.getName();
@@ -105,9 +105,10 @@ public class TweetServiceImp implements TweetService {
             Tweet tweetDB = tweetOptional.get();
             tweetMapper.toEntity(tweet, tweetDB);
 
-            if(tweetDB.getUser().getUsername().equals((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal())){
-                return tweetMapper.toDto(repository.save(tweetDB));}
+            if (tweetDB.getUser().getUsername().equals((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal())) {
+                return tweetMapper.toDto(repository.save(tweetDB));
             }
+        }
         throw new RuntimeException("Tweet not found");
     }
 
@@ -142,20 +143,22 @@ public class TweetServiceImp implements TweetService {
             if (optionalTweetLike.isEmpty()) {
                 tweetLikeRepository.save(tweetLike);
 
-                Notification notification = new Notification();
-                notification.setIcon("like_icon");
-                notification.setIconType("image/png");
-                notification.setHref("/tweets/" + tweetDB.getId());
-                notification.setProfileImage(user.getProfilePhoto());
-                notification.setDescription(user.getUsername() + " indicó que le gusta tu post");
-                notification.setDate(new Date());
-                notificationRepository.save(notification);
+                if (!tweetDB.getUser().getUsername().equals(user.getUsername())) {
+                    Notification notification = new Notification();
+                    notification.setIcon("like_icon");
+                    notification.setIconType("image/png");
+                    notification.setHref("/tweets/" + tweetDB.getId());
+                    notification.setProfileImage(user.getProfilePhoto());
+                    notification.setDescription(user.getUsername() + " indicó que le gusta tu post");
+                    notification.setDate(new Date());
+                    notificationRepository.save(notification);
 
-                UserNotification userNotification = new UserNotification();
-                userNotification.setUser(tweetDB.getUser());
-                userNotification.setNotification(notification);
-                userNotification.setReaded(false);
-                userNotificationRepository.save(userNotification);
+                    UserNotification userNotification = new UserNotification();
+                    userNotification.setUser(tweetDB.getUser());
+                    userNotification.setNotification(notification);
+                    userNotification.setReaded(false);
+                    userNotificationRepository.save(userNotification);
+                }
             }
         }
     }
@@ -214,27 +217,27 @@ public class TweetServiceImp implements TweetService {
     }
 
     @Override
-    public List<TweetResponseDTO> getTweetsLikedByUsername(String username) {
-        return tweetLikeRepository.findByUser_username(username).stream().map(tweet -> tweetMapper.toDto(tweet.getTweet())).toList();
+    public List<TweetResponseDTO> getTweetsLikedByUsername(String username, Long id) {
+        return tweetLikeRepository.findByUser_username(username, 5, id).stream().map(tweet -> tweetMapper.toDto(tweet.getTweet())).toList();
     }
 
     @Override
-    public List<TweetResponseDTO> getTweetsByUsername(String username) {
-        return repository.findByUser_username(username).stream().map(tweet -> tweetMapper.toDto(tweet)).toList();
+    public List<TweetResponseDTO> getTweetsByUsername(String username, Long id) {
+        return this.repository.findByUser_usernameOrderByIdDesc(username, 10, id).stream().map(tweet -> tweetMapper.toDto(tweet)).toList();
     }
 
     @Override
-    public List<TweetResponseDTO> getCommentsByUsername(String username) {
-        return repository.findByUser_usernameAndParentTweetNotNull(username).stream().map(tweet -> tweetMapper.toDto(tweet)).toList();
+    public List<TweetResponseDTO> getCommentsByUsername(String username, Long id) {
+        return repository.findByUser_usernameAndParentTweetNotNull(username, 5, id).stream().map(tweet -> tweetMapper.toDto(tweet)).toList();
     }
 
     @Override
-    public List<TweetResponseDTO> getTweetsWithImagesByUsername(String username) {
-        return repository.findByUser_usernameAndImagesNotNull(username).stream().map(tweet -> tweetMapper.toDto(tweet)).toList();
+    public List<TweetResponseDTO> getTweetsWithImagesByUsername(String username, Long id) {
+        return repository.findByUser_usernameAndImagesNotNull(username, 5, id).stream().map(tweet -> tweetMapper.toDto(tweet)).toList();
     }
 
     @Override
-    public List<TweetResponseDTO> getTweetsByFolloweds(){
+    public List<TweetResponseDTO> getTweetsByFolloweds() {
         List<UserFollow> followeds = userFollowRepository.findByFollower_username((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
 
         return repository.findByFolloweds(followeds.stream().map(UserFollow::getFollowed).toList()).stream().map(tweet -> tweetMapper.toDto(tweet)).toList();

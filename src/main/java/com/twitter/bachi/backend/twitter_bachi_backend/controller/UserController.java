@@ -18,7 +18,10 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
@@ -27,7 +30,7 @@ public class UserController {
     private UserService userService;
 
     @GetMapping
-    public List<UserResponseDTO> list(){
+    public List<UserResponseDTO> list() {
         return userService.findAll();
     }
 
@@ -40,7 +43,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("error", "El Usuario no se encontro por el username" + username));
     }
 
-     @GetMapping("/")
+    @GetMapping("/")
 
     @PostMapping
     public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserCreationRequestDTO user) {
@@ -50,7 +53,7 @@ public class UserController {
     @PutMapping("/edit/{username}")
     public ResponseEntity<UserResponseDTO> EditUser(@RequestBody UserEditRequestDTO userEdited, @PathVariable String username) {
         UserResponseDTO user = userService.update(userEdited, username);
-            return ResponseEntity.ok(user);
+        return ResponseEntity.ok(user);
     }
 
     @DeleteMapping("{id}")
@@ -119,17 +122,17 @@ public class UserController {
     }
 
     @GetMapping("/followers/{username}")
-    public List<UserFollow> getFollowersByUsername(@PathVariable String username){
+    public List<UserFollow> getFollowersByUsername(@PathVariable String username) {
         return userService.findFollowersByUsername(username);
     }
 
     @GetMapping("/following/{username}")
-    public List<UserFollow> getFollowedsByUsername(@PathVariable String username){
+    public List<UserFollow> getFollowedsByUsername(@PathVariable String username) {
         return userService.findFollowedsByFollower(username);
     }
 
     @GetMapping("/logged-user")
-    public UserResponseDTO getLoggedUser(){
+    public UserResponseDTO getLoggedUser() {
         return userService.getLoggedUser();
     }
 }

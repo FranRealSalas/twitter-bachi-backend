@@ -45,33 +45,33 @@ public abstract class TweetMapper {
     @Mapping(target = "countComments", expression = "java(countCommentsByParentId(tweet))")
     public abstract TweetResponseDTO toDto(Tweet tweet);
 
-    public boolean isLiked(Tweet tweet){
-            User user = userRepository.findByUsername((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).orElseThrow();
-            Optional<Tweet> tweetOptional = tweetRepository.findById(tweet.getId());
-            if (tweetOptional.isPresent()){
-                return tweetLikeRepository.existsByUserAndTweet(user, tweet);
-            }
-            return  false;
-    }
-
-    public boolean isSaved(Tweet tweet){
+    public boolean isLiked(Tweet tweet) {
         User user = userRepository.findByUsername((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).orElseThrow();
         Optional<Tweet> tweetOptional = tweetRepository.findById(tweet.getId());
-        if (tweetOptional.isPresent()){
-            return tweetSaveRepository.existsByUserAndTweet(user, tweet);
+        if (tweetOptional.isPresent()) {
+            return tweetLikeRepository.existsByUserAndTweet(user, tweet);
         }
-        return  false;
+        return false;
     }
 
-    public long likeCountByTweet(Tweet tweet){
+    public boolean isSaved(Tweet tweet) {
+        User user = userRepository.findByUsername((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).orElseThrow();
+        Optional<Tweet> tweetOptional = tweetRepository.findById(tweet.getId());
+        if (tweetOptional.isPresent()) {
+            return tweetSaveRepository.existsByUserAndTweet(user, tweet);
+        }
+        return false;
+    }
+
+    public long likeCountByTweet(Tweet tweet) {
         return tweetLikeRepository.countByTweet(tweet);
     }
 
-    public long saveCountByTweet(Tweet tweet){
+    public long saveCountByTweet(Tweet tweet) {
         return tweetSaveRepository.countByTweet(tweet);
     }
 
-    public int countCommentsByParentId(Tweet tweet){
+    public int countCommentsByParentId(Tweet tweet) {
         return tweetRepository.countByParentTweet_Id(tweet.getId());
     }
 }

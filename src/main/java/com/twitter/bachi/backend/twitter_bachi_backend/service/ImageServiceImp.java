@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class ImageServiceImp implements ImageService{
+public class ImageServiceImp implements ImageService {
     @Autowired
     private TweetImageRepository tweetImageRepository;
 

@@ -47,7 +47,7 @@ public class AuthController {
 
             boolean isAdmin = roles.stream().anyMatch(role -> role.getAuthority().equals("Admin"));
 
-            Optional<UserResponseDTO> userData =  userService.findByUsername(username);
+            Optional<UserResponseDTO> userData = userService.findByUsername(username);
 
             if (userData.isPresent()) {
                 String profileImage = userData.get().getProfilePhoto();
@@ -76,7 +76,7 @@ public class AuthController {
                 body.put("username", username);
                 body.put("message", String.format("Iniciaste sesion con exito %s", username));
                 return new ResponseEntity<>(body, HttpStatus.OK);
-            }else{
+            } else {
                 throw new RuntimeException("User not found");
             }
 

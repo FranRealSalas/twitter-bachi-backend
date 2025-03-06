@@ -4,7 +4,10 @@ import com.twitter.bachi.backend.twitter_bachi_backend.dto.mapper.UserMapper;
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.request.UserCreationRequestDTO;
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.request.UserEditRequestDTO;
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.response.UserResponseDTO;
-import com.twitter.bachi.backend.twitter_bachi_backend.entity.*;
+import com.twitter.bachi.backend.twitter_bachi_backend.entity.Notification;
+import com.twitter.bachi.backend.twitter_bachi_backend.entity.User;
+import com.twitter.bachi.backend.twitter_bachi_backend.entity.UserFollow;
+import com.twitter.bachi.backend.twitter_bachi_backend.entity.UserNotification;
 import com.twitter.bachi.backend.twitter_bachi_backend.repository.NotificationRepository;
 import com.twitter.bachi.backend.twitter_bachi_backend.repository.UserFollowRepository;
 import com.twitter.bachi.backend.twitter_bachi_backend.repository.UserNotificationRepository;
@@ -95,7 +98,7 @@ public class UserServiceImp implements UserService {
     @Override
     public void giveFollow(String username) {
         if (((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).equals(username)) {
-            throw new IllegalArgumentException("You can't follow yourself");
+            throw new IllegalArgumentException("No puedes seguirte a ti mismo");
         }
 
         User follower = repository.findByUsername((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).orElseThrow();
@@ -109,24 +112,26 @@ public class UserServiceImp implements UserService {
 
             Optional<UserFollow> optionalUserFollow = userFollowRepository.findByFollowerAndFollowed(follower, userDB);
 
-             if (optionalUserFollow.isEmpty()){
+            if (optionalUserFollow.isEmpty()) {
                 userFollowRepository.save(userFollow);
 
-                 Notification notification = new Notification();
-                 notification.setIcon("follow_icon");
-                 notification.setIconType("image/png");
-                 notification.setHref("/users/" + userFollow.getFollower().getUsername());
-                 notification.setProfileImage(userFollow.getFollower().getProfilePhoto());
-                 notification.setDescription(userFollow.getFollower().getUsername() + " te siguió");
-                 notification.setDate(new Date());
-                 notificationRepository.save(notification);
+                if (!userDB.getUsername().equals(follower.getUsername())) {
+                    Notification notification = new Notification();
+                    notification.setIcon("follow_icon");
+                    notification.setIconType("image/png");
+                    notification.setHref("/users/" + userFollow.getFollower().getUsername());
+                    notification.setProfileImage(userFollow.getFollower().getProfilePhoto());
+                    notification.setDescription(userFollow.getFollower().getUsername() + " te siguió");
+                    notification.setDate(new Date());
+                    notificationRepository.save(notification);
 
-                 UserNotification userNotification = new UserNotification();
-                 userNotification.setUser(userDB);
-                 userNotification.setNotification(notification);
-                 userNotification.setReaded(false);
-                 userNotificationRepository.save(userNotification);
-             }
+                    UserNotification userNotification = new UserNotification();
+                    userNotification.setUser(userDB);
+                    userNotification.setNotification(notification);
+                    userNotification.setReaded(false);
+                    userNotificationRepository.save(userNotification);
+                }
+            }
         }
     }
 
@@ -146,7 +151,7 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public ResponseEntity<Map<String, Object>> uploadProfileImage(MultipartFile file){
+    public ResponseEntity<Map<String, Object>> uploadProfileImage(MultipartFile file) {
         Map<String, Object> response = new HashMap<>();
 
         Optional<User> optionalUser = repository.findByUsername((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
@@ -232,7 +237,7 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public UserResponseDTO getLoggedUser(){
+    public UserResponseDTO getLoggedUser() {
         return userMapper.toDto(repository.findByUsername((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).orElseThrow());
     }
 }
