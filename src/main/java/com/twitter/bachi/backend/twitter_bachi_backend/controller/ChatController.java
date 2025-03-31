@@ -18,8 +18,8 @@ public class ChatController {
     private ChatService chatService;
 
     @GetMapping
-    public List<Chat> findAllChats(){
-        return chatService.findAllChats();
+    public List<Chat> findAllChats(@RequestParam(required = false) Long id){
+        return chatService.findAllChats(id);
     }
 
     @PostMapping

@@ -22,8 +22,8 @@ public class MessageServiceImp implements MessageService{
 
     @Override
     @Transactional(readOnly = true)
-    public List<Message> findAllMessagesByChatId(Long chatId) {
-        return messageRepository.findAllMessagesByChatId(chatId);
+    public List<Message> findAllMessagesByChatId(Long chatId, Long id) {
+        return messageRepository.findAllMessagesByChatId(chatId, 7, id);
     }
 
     @Override

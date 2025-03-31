@@ -5,7 +5,9 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.util.Date;
 import java.util.List;
 
 @NoArgsConstructor
@@ -22,7 +24,9 @@ public class Chat {
     private List<User> users;
 
     @OneToMany(mappedBy = "chat")
-    @JsonIgnore
     private List<Message> messages;
 
+    @Temporal(TemporalType.TIMESTAMP)
+    @CreationTimestamp
+    private Date date;
 }

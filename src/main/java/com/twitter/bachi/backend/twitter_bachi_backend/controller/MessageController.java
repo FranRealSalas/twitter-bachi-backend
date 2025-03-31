@@ -23,7 +23,7 @@ public class MessageController {
     }
 
     @GetMapping("/{chatId}")
-    public List<Message> findAllMessagesByChatId(@PathVariable Long chatId){
-        return messageService.findAllMessagesByChatId(chatId);
+    public List<Message> findAllMessagesByChatId(@PathVariable Long chatId, @RequestParam(required = false) Long id){
+        return messageService.findAllMessagesByChatId(chatId, id);
     }
 }

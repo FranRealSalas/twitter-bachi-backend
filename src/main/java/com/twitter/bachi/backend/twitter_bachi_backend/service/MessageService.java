@@ -8,5 +8,5 @@ import java.util.List;
 public interface MessageService {
     Message createMessage(MessageCreationRequestDTO messageCreationRequestDTO);
 
-    public List<Message> findAllMessagesByChatId(Long chatId);
+    public List<Message> findAllMessagesByChatId(Long chatId, Long id);
 }

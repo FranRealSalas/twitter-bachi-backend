@@ -1,5 +1,6 @@
 package com.twitter.bachi.backend.twitter_bachi_backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,6 +25,7 @@ public class Message {
     private User sender;
 
     @ManyToOne
+    @JsonIgnore
     private Chat chat;
 
     @Temporal(TemporalType.TIMESTAMP)

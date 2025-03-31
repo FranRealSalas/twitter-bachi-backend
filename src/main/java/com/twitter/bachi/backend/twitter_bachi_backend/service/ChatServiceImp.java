@@ -22,10 +22,10 @@ public class ChatServiceImp implements ChatService {
     @Autowired
     private UserRepository userRepository;
 
-    @Override
     @Transactional(readOnly = true)
-    public List<Chat> findAllChats() {
-        return this.chatRepository.findAll();
+    @Override
+    public List<Chat> findAllChats(Long id) {
+        return this.chatRepository.findAllChatsOrderByIdAsc(id, 6);
     }
 
     @Override
