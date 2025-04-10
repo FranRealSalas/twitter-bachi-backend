@@ -1,12 +1,12 @@
 package com.twitter.bachi.backend.twitter_bachi_backend.service;
 
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.request.MessageCreationRequestDTO;
-import com.twitter.bachi.backend.twitter_bachi_backend.entity.Message;
+import com.twitter.bachi.backend.twitter_bachi_backend.dto.response.MessageResponseDTO;
 
 import java.util.List;
 
 public interface MessageService {
-    Message createMessage(MessageCreationRequestDTO messageCreationRequestDTO);
+    MessageResponseDTO createMessage(MessageCreationRequestDTO messageCreationRequestDTO);
 
-    public List<Message> findAllMessagesByChatId(Long chatId, Long id);
+    List<MessageResponseDTO> findAllMessagesByChatId(Long chatId, Long id);
 }

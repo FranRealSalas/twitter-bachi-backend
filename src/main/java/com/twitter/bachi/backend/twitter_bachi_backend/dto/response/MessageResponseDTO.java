@@ -8,7 +8,6 @@ import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.util.Date;
 
@@ -21,9 +20,7 @@ public class MessageResponseDTO {
 
     private String content;
 
-    private User sender;
-
-    private Chat chat;
+    private UserResponseDTO sender;
 
     private Date date;
 }

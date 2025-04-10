@@ -23,9 +23,6 @@ public class Chat {
     @ManyToMany
     private List<User> users;
 
-    @OneToMany(mappedBy = "chat")
-    private List<Message> messages;
-
     @Temporal(TemporalType.TIMESTAMP)
     @CreationTimestamp
     private Date date;

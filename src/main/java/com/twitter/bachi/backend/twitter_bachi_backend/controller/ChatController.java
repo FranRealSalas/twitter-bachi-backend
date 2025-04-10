@@ -1,6 +1,7 @@
 package com.twitter.bachi.backend.twitter_bachi_backend.controller;
 
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.request.ChatCreationRequestDTO;
+import com.twitter.bachi.backend.twitter_bachi_backend.dto.response.ChatResponseDTO;
 import com.twitter.bachi.backend.twitter_bachi_backend.entity.Chat;
 import com.twitter.bachi.backend.twitter_bachi_backend.service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +19,12 @@ public class ChatController {
     private ChatService chatService;
 
     @GetMapping
-    public List<Chat> findAllChats(@RequestParam(required = false) Long id){
+    public List<ChatResponseDTO> findAllChats(@RequestParam(required = false) Long id){
         return chatService.findAllChats(id);
     }
 
     @PostMapping
-    public ResponseEntity<Chat> createChat(@RequestBody ChatCreationRequestDTO chatCreationRequestDTO){
+    public ResponseEntity<ChatResponseDTO> createChat(@RequestBody ChatCreationRequestDTO chatCreationRequestDTO){
         return ResponseEntity.status(HttpStatus.CREATED).body(chatService.createChat(chatCreationRequestDTO));
     }
 }

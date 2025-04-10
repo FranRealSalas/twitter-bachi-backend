@@ -128,7 +128,6 @@ public class UserServiceImp implements UserService {
                     UserNotification userNotification = new UserNotification();
                     userNotification.setUser(userDB);
                     userNotification.setNotification(notification);
-                    userNotification.setReaded(false);
                     userNotificationRepository.save(userNotification);
                 }
             }

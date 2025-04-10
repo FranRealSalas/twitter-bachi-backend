@@ -1,17 +1,16 @@
 package com.twitter.bachi.backend.twitter_bachi_backend.dto.request;
 
-import com.twitter.bachi.backend.twitter_bachi_backend.entity.Chat;
-import com.twitter.bachi.backend.twitter_bachi_backend.entity.User;
+import com.twitter.bachi.backend.twitter_bachi_backend.dto.response.UserResponseDTO;
 import lombok.Data;
-
-
 
 @Data
 public class MessageCreationRequestDTO {
 
     private String content;
 
-    private User sender;
+    private UserResponseDTO sender;
 
-    private Chat chat;
+    private Long chatId;
+
+    private ChatCreationRequestDTO chatCreationRequestDTO;
 }

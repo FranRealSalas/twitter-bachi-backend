@@ -15,6 +15,8 @@ public class ChatResponseDTO {
 
     private Long id;
 
-    private List<User> users;
+    private List<UserResponseDTO> users;
+
+    private MessageResponseDTO lastMessage;
 
 }

@@ -1,8 +1,7 @@
 package com.twitter.bachi.backend.twitter_bachi_backend.controller;
 
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.request.MessageCreationRequestDTO;
-import com.twitter.bachi.backend.twitter_bachi_backend.entity.Chat;
-import com.twitter.bachi.backend.twitter_bachi_backend.entity.Message;
+import com.twitter.bachi.backend.twitter_bachi_backend.dto.response.MessageResponseDTO;
 import com.twitter.bachi.backend.twitter_bachi_backend.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,12 +17,12 @@ public class MessageController {
     MessageService messageService;
 
     @PostMapping
-    public ResponseEntity<Message> createMessage(@RequestBody  MessageCreationRequestDTO messageCreationRequestDTO){
+    public ResponseEntity<MessageResponseDTO> createMessage(@RequestBody  MessageCreationRequestDTO messageCreationRequestDTO){
         return ResponseEntity.status(HttpStatus.CREATED).body(messageService.createMessage(messageCreationRequestDTO));
     }
 
     @GetMapping("/{chatId}")
-    public List<Message> findAllMessagesByChatId(@PathVariable Long chatId, @RequestParam(required = false) Long id){
+    public List<MessageResponseDTO> findAllMessagesByChatId(@PathVariable Long chatId, @RequestParam(required = false) Long id){
         return messageService.findAllMessagesByChatId(chatId, id);
     }
 }

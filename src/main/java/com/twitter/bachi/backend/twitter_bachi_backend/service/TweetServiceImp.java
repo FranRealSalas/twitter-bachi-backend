@@ -156,7 +156,6 @@ public class TweetServiceImp implements TweetService {
                     UserNotification userNotification = new UserNotification();
                     userNotification.setUser(tweetDB.getUser());
                     userNotification.setNotification(notification);
-                    userNotification.setReaded(false);
                     userNotificationRepository.save(userNotification);
                 }
             }

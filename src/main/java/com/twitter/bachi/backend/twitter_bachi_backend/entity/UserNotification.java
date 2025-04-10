@@ -16,6 +16,4 @@ public class UserNotification {
 
     @ManyToOne
     private User user;
-
-    private Boolean readed;
 }

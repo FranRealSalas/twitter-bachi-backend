@@ -1,6 +1,8 @@
 package com.twitter.bachi.backend.twitter_bachi_backend.service;
 
+import com.twitter.bachi.backend.twitter_bachi_backend.dto.mapper.ChatMapper;
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.request.ChatCreationRequestDTO;
+import com.twitter.bachi.backend.twitter_bachi_backend.dto.response.ChatResponseDTO;
 import com.twitter.bachi.backend.twitter_bachi_backend.entity.Chat;
 import com.twitter.bachi.backend.twitter_bachi_backend.entity.User;
 import com.twitter.bachi.backend.twitter_bachi_backend.repository.ChatRepository;
@@ -22,14 +24,22 @@ public class ChatServiceImp implements ChatService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private  ChatMapper chatMapper;
+
     @Transactional(readOnly = true)
     @Override
-    public List<Chat> findAllChats(Long id) {
-        return this.chatRepository.findAllChatsOrderByIdAsc(id, 6);
+    public List<ChatResponseDTO> findAllChats(Long id) {
+        return this.chatRepository.findAllChatsOrderByIdDesc(id, 6).stream().map(chat -> chatMapper.toDto(chat)).toList();
     }
 
     @Override
-    public Chat createChat(ChatCreationRequestDTO chatCreationRequestDTO) {
+    public ChatResponseDTO createChat(ChatCreationRequestDTO chatCreationRequestDTO) {
+        return chatMapper.toDto(createChatDB(chatCreationRequestDTO));
+    }
+
+    @Override
+    public Chat createChatDB(ChatCreationRequestDTO chatCreationRequestDTO){
         Set<User> users = new HashSet<>(userRepository.findAllById(chatCreationRequestDTO.getUsersId()));
         User loggedUser = userRepository.findByUsername((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).orElseThrow();
 

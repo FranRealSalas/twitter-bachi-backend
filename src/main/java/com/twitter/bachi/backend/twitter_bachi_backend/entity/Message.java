@@ -1,6 +1,7 @@
 package com.twitter.bachi.backend.twitter_bachi_backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.twitter.bachi.backend.twitter_bachi_backend.dto.response.UserResponseDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
