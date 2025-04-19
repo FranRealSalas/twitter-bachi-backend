@@ -21,7 +21,6 @@ public class Tweet {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
     private String content;
 
     @ManyToOne

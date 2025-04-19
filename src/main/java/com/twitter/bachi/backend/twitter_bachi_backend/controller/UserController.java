@@ -11,6 +11,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -43,15 +44,13 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("error", "El Usuario no se encontro por el username" + username));
     }
 
-    @GetMapping("/")
-
     @PostMapping
-    public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserCreationRequestDTO user) {
+    public ResponseEntity<UserResponseDTO> createUser(@RequestBody @Validated UserCreationRequestDTO user) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.save(user));
     }
 
     @PutMapping("/edit/{username}")
-    public ResponseEntity<UserResponseDTO> EditUser(@RequestBody UserEditRequestDTO userEdited, @PathVariable String username) {
+    public ResponseEntity<UserResponseDTO> EditUser(@RequestBody @Validated UserEditRequestDTO userEdited, @PathVariable String username) {
         UserResponseDTO user = userService.update(userEdited, username);
         return ResponseEntity.ok(user);
     }

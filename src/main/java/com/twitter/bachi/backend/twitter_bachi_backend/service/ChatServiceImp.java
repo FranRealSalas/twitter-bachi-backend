@@ -7,14 +7,15 @@ import com.twitter.bachi.backend.twitter_bachi_backend.entity.Chat;
 import com.twitter.bachi.backend.twitter_bachi_backend.entity.User;
 import com.twitter.bachi.backend.twitter_bachi_backend.repository.ChatRepository;
 import com.twitter.bachi.backend.twitter_bachi_backend.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class ChatServiceImp implements ChatService {
@@ -29,9 +30,22 @@ public class ChatServiceImp implements ChatService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<ChatResponseDTO> findAllChats(Long id) {
-        return this.chatRepository.findAllChatsOrderByIdDesc(id, 6).stream().map(chat -> chatMapper.toDto(chat)).toList();
+    public Page<ChatResponseDTO> findAllChats(Integer page) {
+        User loggedUser = userRepository.findByUsername((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).orElseThrow();
+        return this.chatRepository.findAllByUsersContainingOrderByDateDesc(loggedUser, PageRequest.of(page,5)).map(chat -> chatMapper.toDto(chat));
     }
+
+    @Override
+    public ChatResponseDTO findChatByExactParticipants(List<Long> userIds) {
+        // Intentamos obtener el chat de la base de datos
+        Optional<Chat> chatOptional = chatRepository.findChatByExactParticipants(userIds, userIds.size());
+
+        // Si el chat está presente, mapeamos a ChatResponseDTO, si no, lanzamos una excepción
+        return chatOptional
+                .map(chat -> chatMapper.toDto(chat)) // Si está presente, mapeamos a DTO
+                .orElseThrow(() -> new EntityNotFoundException("No chat found with the exact participants.")); // Si no, lanzamos excepción
+    }
+
 
     @Override
     public ChatResponseDTO createChat(ChatCreationRequestDTO chatCreationRequestDTO) {
@@ -50,7 +64,7 @@ public class ChatServiceImp implements ChatService {
 
         Chat chat = new Chat();
         users.add(loggedUser);
-        chat.setUsers(users.stream().toList());
+        chat.setUsers(new ArrayList<>(users));
 
         return chatRepository.save(chat);
     }

@@ -11,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -48,12 +49,12 @@ public class TweetController {
     }
 
     @PostMapping
-    public ResponseEntity<TweetResponseDTO> createTweet(@RequestPart("content") TweetCreationRequestDTO tweet, @RequestPart(required = false) MultipartFile[] images) {
+    public ResponseEntity<TweetResponseDTO> createTweet(@RequestPart("content") @Validated TweetCreationRequestDTO tweet, @RequestPart(required = false) MultipartFile[] images) {
         return ResponseEntity.status(HttpStatus.CREATED).body(tweetService.save(tweet, images));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TweetResponseDTO> editTweet(@RequestBody TweetEditRequestDTO tweet, @PathVariable Long id) {
+    public ResponseEntity<TweetResponseDTO> editTweet(@RequestBody @Validated TweetEditRequestDTO tweet, @PathVariable Long id) {
         return ResponseEntity.status(HttpStatus.OK).body(tweetService.edit(tweet, id));
     }
 

@@ -5,6 +5,7 @@ import com.twitter.bachi.backend.twitter_bachi_backend.dto.response.ChatResponse
 import com.twitter.bachi.backend.twitter_bachi_backend.entity.Chat;
 import com.twitter.bachi.backend.twitter_bachi_backend.service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +20,13 @@ public class ChatController {
     private ChatService chatService;
 
     @GetMapping
-    public List<ChatResponseDTO> findAllChats(@RequestParam(required = false) Long id){
-        return chatService.findAllChats(id);
+    public Page<ChatResponseDTO> findAllChats(@RequestParam Integer page){
+        return chatService.findAllChats(page);
+    }
+
+    @GetMapping("/by-participants")
+    public ChatResponseDTO findChatByExactParticipants(@RequestParam List<Long>usersIds){
+        return chatService.findChatByExactParticipants(usersIds);
     }
 
     @PostMapping

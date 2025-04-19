@@ -14,6 +14,7 @@ import org.mapstruct.MappingTarget;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public abstract class UserMapper {
@@ -26,6 +27,10 @@ public abstract class UserMapper {
     @Autowired
     protected UserFollowRepository userFollowRepository;
 
+    @Autowired
+    protected PasswordEncoder passwordEncoder;
+
+    @Mapping(target = "password", expression = "java(passwordEncoder.encode(userDTO.getPassword()))")
     public abstract User toEntity(UserCreationRequestDTO userDTO);
 
     public abstract User toEntity(UserEditRequestDTO userDTO, @MappingTarget User user);

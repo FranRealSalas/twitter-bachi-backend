@@ -6,6 +6,7 @@ import com.twitter.bachi.backend.twitter_bachi_backend.dto.response.MessageRespo
 import java.util.List;
 
 public interface MessageService {
+
     MessageResponseDTO createMessage(MessageCreationRequestDTO messageCreationRequestDTO);
 
     List<MessageResponseDTO> findAllMessagesByChatId(Long chatId, Long id);
