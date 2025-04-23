@@ -60,6 +60,8 @@ public class SpringSecurityConfig {
                                 .permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/users/uploads/cover/img/{photoName:.+}")
                                 .permitAll()
+                                .requestMatchers("/ws/**")
+                                .permitAll()
                                 .requestMatchers("/api/auth/login")
                                 .permitAll()
                                 .requestMatchers("/error")

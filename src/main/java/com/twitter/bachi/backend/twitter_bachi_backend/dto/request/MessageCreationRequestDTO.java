@@ -10,8 +10,6 @@ public class MessageCreationRequestDTO {
     @NotBlank
     private String content;
 
-    private UserResponseDTO sender;
-
     private Long chatId;
 
     private ChatCreationRequestDTO chatCreationRequestDTO;

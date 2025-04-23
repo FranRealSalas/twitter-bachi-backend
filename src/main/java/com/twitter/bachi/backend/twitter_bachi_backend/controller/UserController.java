@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -86,6 +87,9 @@ public class UserController {
         Path fileRoute = Paths.get("uploads/profile").resolve(photoName).toAbsolutePath();
         Resource resource = null;
 
+        if(!Files.exists(fileRoute)){
+            return ResponseEntity.internalServerError().build();
+        }
         try {
             resource = new UrlResource(fileRoute.toUri());
         } catch (MalformedURLException e) {

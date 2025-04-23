@@ -1,5 +1,6 @@
 package com.twitter.bachi.backend.twitter_bachi_backend.service;
 
+import com.google.gson.Gson;
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.mapper.MessageMapper;
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.mapper.UserMapper;
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.request.MessageCreationRequestDTO;
@@ -13,6 +14,7 @@ import com.twitter.bachi.backend.twitter_bachi_backend.repository.MessageReposit
 import com.twitter.bachi.backend.twitter_bachi_backend.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +42,9 @@ public class MessageServiceImp implements MessageService{
 
     @Autowired
     private MessageMapper messageMapper;
+
+    @Autowired
+    private SimpMessagingTemplate simpMessagingTemplate;
 
     @Override
     @Transactional(readOnly = true)
@@ -90,7 +95,15 @@ public class MessageServiceImp implements MessageService{
         UserResponseDTO userResponseDTO = userMapper.toDto(user);
         messageResponseDTO.setSender(userResponseDTO);
 
+        sendMessageToWebSocket(messageResponseDTO, savedMessage.getChat().getId());
+
         return messageResponseDTO;
 
+    }
+
+    public void sendMessageToWebSocket(MessageResponseDTO messageResponseDTO, Long chatId){
+        simpMessagingTemplate.convertAndSend(
+                "/topic/messages/"+ chatId,
+                new Gson().toJson(messageResponseDTO));
     }
 }
