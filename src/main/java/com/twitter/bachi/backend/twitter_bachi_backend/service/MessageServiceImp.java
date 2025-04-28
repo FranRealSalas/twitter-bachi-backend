@@ -1,9 +1,11 @@
 package com.twitter.bachi.backend.twitter_bachi_backend.service;
 
 import com.google.gson.Gson;
+import com.twitter.bachi.backend.twitter_bachi_backend.dto.mapper.ChatMapper;
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.mapper.MessageMapper;
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.mapper.UserMapper;
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.request.MessageCreationRequestDTO;
+import com.twitter.bachi.backend.twitter_bachi_backend.dto.response.ChatResponseDTO;
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.response.MessageResponseDTO;
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.response.UserResponseDTO;
 import com.twitter.bachi.backend.twitter_bachi_backend.entity.Chat;
@@ -39,6 +41,9 @@ public class MessageServiceImp implements MessageService{
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private ChatMapper chatMapper;
 
     @Autowired
     private MessageMapper messageMapper;
@@ -96,6 +101,7 @@ public class MessageServiceImp implements MessageService{
         messageResponseDTO.setSender(userResponseDTO);
 
         sendMessageToWebSocket(messageResponseDTO, savedMessage.getChat().getId());
+        createChatToWebSocket(chatMapper.toDto(message.getChat()));
 
         return messageResponseDTO;
 
@@ -105,5 +111,11 @@ public class MessageServiceImp implements MessageService{
         simpMessagingTemplate.convertAndSend(
                 "/topic/messages/"+ chatId,
                 new Gson().toJson(messageResponseDTO));
+    }
+
+    public void createChatToWebSocket(ChatResponseDTO chatResponseDTO){
+        simpMessagingTemplate.convertAndSend(
+                "/topic/chats",
+                new Gson().toJson(chatResponseDTO));
     }
 }

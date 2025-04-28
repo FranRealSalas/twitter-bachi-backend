@@ -1,8 +1,10 @@
 package com.twitter.bachi.backend.twitter_bachi_backend.service;
 
+import com.google.gson.Gson;
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.mapper.ChatMapper;
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.request.ChatCreationRequestDTO;
 import com.twitter.bachi.backend.twitter_bachi_backend.dto.response.ChatResponseDTO;
+import com.twitter.bachi.backend.twitter_bachi_backend.dto.response.MessageResponseDTO;
 import com.twitter.bachi.backend.twitter_bachi_backend.entity.Chat;
 import com.twitter.bachi.backend.twitter_bachi_backend.entity.User;
 import com.twitter.bachi.backend.twitter_bachi_backend.repository.ChatRepository;
@@ -11,6 +13,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +30,9 @@ public class ChatServiceImp implements ChatService {
 
     @Autowired
     private  ChatMapper chatMapper;
+
+    @Autowired
+    private SimpMessagingTemplate simpMessagingTemplate;
 
     @Transactional(readOnly = true)
     @Override
